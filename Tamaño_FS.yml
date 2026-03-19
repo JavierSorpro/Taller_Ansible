@@ -1,0 +1,27 @@
+---
+- name: Filesystem Usage Check
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  pre_tasks:
+    - name: Excluir Windows
+      meta: end_host
+      when: ansible_os_family == "Windows"
+
+  tasks:
+
+    - name: Obtener uso de filesystem
+      shell: "df -h --output=source,size,used,avail,pcent,target"
+      register: fs_usage
+
+    - name: Mostrar resultados tipo tabla
+      debug:
+        msg: |
+          ===== FILESYSTEM USAGE =====
+
+          Host: {{ inventory_hostname }}
+
+          Filesystem   Size   Used   Avail   Use%   Mount
+          ------------------------------------------------
+          {{ fs_usage.stdout }}  
