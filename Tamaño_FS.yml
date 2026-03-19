@@ -15,13 +15,12 @@
       shell: "df -h --output=source,size,used,avail,pcent,target"
       register: fs_usage
 
-    - name: Mostrar resultados tipo tabla
+    - name: Mostrar filesystem sin encabezado duplicado
       debug:
         msg: |
           ===== FILESYSTEM USAGE =====
-
           Host: {{ inventory_hostname }}
 
-          Filesystem   Size   Used   Avail   Use%   Mount
-          ------------------------------------------------
-          {{ fs_usage.stdout }}  
+          {% for line in fs_usage.stdout_lines[1:] %}
+          {{ line }}
+          {% endfor %}
