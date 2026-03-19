@@ -49,31 +49,30 @@
       register: open_ports
 
     - name: Mostrar resultados
-  
       debug:
         msg: |
           ====== HEALTH CHECK ======
-
           Hostname: {{ hostname.stdout }}
-          Uptime: {{ uptime.stdout }}
-
-          CPU Usage: {{ cpu_usage.stdout }} %
-          Memory Usage: {{ mem_usage.stdout }} %
-
-          ---- DISCO ROOT ----
-          {{ disk_usage.stdout }}
-
-          ---- TODOS LOS DISCOS ----
-          {{ all_disks.stdout }}
-
-          ---- TOP CPU ----
-          {{ top_cpu.stdout }}
-
-          ---- TOP MEMORIA ----
-          {{ top_mem.stdout }}
-
-          ---- SSHD ----
-          Estado: {{ ssh_status.state }}
-
-          ---- PUERTOS ABIERTOS ----
-          {{ open_ports.stdout }}
+          CPU: {{ cpu_usage.stdout }} %
+          Memoria: {{ mem_usage.stdout }} %
+    - name: Generar reporte HTML
+      copy:
+        dest: "/tmp/healthcheck_{{ inventory_hostname }}.html"
+        content: |
+          <html>
+          <body>
+          <h2>Health Check - {{ inventory_hostname }}</h2>
+          <table border="1">
+            <tr>
+              <th>CPU %</th>
+              <th>Memoria %</th>
+              <th>Uptime</th>
+            </tr>
+            <tr>
+              <td>{{ cpu_usage.stdout }}</td>
+              <td>{{ mem_usage.stdout }}</td>
+              <td>{{ uptime.stdout }}</td>
+            </tr>
+          </table>
+          </body>
+          </html>
