@@ -1,0 +1,63 @@
+---
+- name: Health Check Basico Linux
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+
+    - name: Obtener hostname
+      command: hostname
+      register: hostname
+
+    - name: Obtener uptime
+      command: uptime -p
+      register: uptime
+
+    - name: Uso de CPU
+      shell: "top -bn1 | grep 'Cpu(s)' | awk '{print $2 + $4}'"
+      register: cpu_usage
+
+    - name: Uso de memoria
+      shell: "free -m | awk 'NR==2{printf \"%.2f\", $3*100/$2 }'"
+      register: mem_usage
+
+    - name: Uso de disco
+      command: df -h /
+      register: disk_usage
+
+    - name: Verificar particiones críticas
+      command: df -h
+      register: all_disks
+
+    - name: Procesos más pesados (Top 5 CPU)
+      shell: "ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head -n 6"
+      register: top_cpu
+
+    - name: Procesos más pesados (Top 5 Memoria)
+      shell: "ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 6"
+      register: top_mem
+
+    - name: Verificar servicios críticos (ejemplo sshd)
+      systemd:
+        name: sshd
+        state: started
+      register: ssh_status
+
+    - name: Verificar puertos abiertos
+      shell: "ss -tuln"
+      register: open_ports
+
+    - name: Mostrar resultados
+      debug:
+        msg:
+          - "Hostname: {{ hostname.stdout }}"
+          - "Uptime: {{ uptime.stdout }}"
+          - "CPU Usage (%): {{ cpu_usage.stdout }}"
+          - "Memory Usage (%): {{ mem_usage.stdout }}"
+          - "Disk Root: {{ disk_usage.stdout_lines }}"
+          - "All Disks: {{ all_disks.stdout_lines }}"
+          - "Top CPU Processes: {{ top_cpu.stdout_lines }}"
+          - "Top Memory Processes: {{ top_mem.stdout_lines }}"
+          - "SSHD Status: {{ ssh_status.state }}"
+          - "Open Ports: {{ open_ports.stdout_lines }}"
