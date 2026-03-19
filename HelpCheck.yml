@@ -49,15 +49,31 @@
       register: open_ports
 
     - name: Mostrar resultados
+  
       debug:
-        msg:
-          - "Hostname: {{ hostname.stdout }}"
-          - "Uptime: {{ uptime.stdout }}"
-          - "CPU Usage (%): {{ cpu_usage.stdout }}"
-          - "Memory Usage (%): {{ mem_usage.stdout }}"
-          - "Disk Root: {{ disk_usage.stdout_lines }}"
-          - "All Disks: {{ all_disks.stdout_lines }}"
-          - "Top CPU Processes: {{ top_cpu.stdout_lines }}"
-          - "Top Memory Processes: {{ top_mem.stdout_lines }}"
-          - "SSHD Status: {{ ssh_status.state }}"
-          - "Open Ports: {{ open_ports.stdout_lines }}"
+        msg: |
+          ====== HEALTH CHECK ======
+
+          Hostname: {{ hostname.stdout }}
+          Uptime: {{ uptime.stdout }}
+
+          CPU Usage: {{ cpu_usage.stdout }} %
+          Memory Usage: {{ mem_usage.stdout }} %
+
+          ---- DISCO ROOT ----
+          {{ disk_usage.stdout }}
+
+          ---- TODOS LOS DISCOS ----
+          {{ all_disks.stdout }}
+
+          ---- TOP CPU ----
+          {{ top_cpu.stdout }}
+
+          ---- TOP MEMORIA ----
+          {{ top_mem.stdout }}
+
+          ---- SSHD ----
+          Estado: {{ ssh_status.state }}
+
+          ---- PUERTOS ABIERTOS ----
+          {{ open_ports.stdout }}
